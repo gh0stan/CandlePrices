@@ -1,0 +1,13 @@
+﻿version: '3.9'
+
+services:
+
+  db:
+    image: postgres:latest
+    restart: always
+    environment:
+      - POSTGRES_USER=prices
+      - POSTGRES_PASSWORD=pricespass
+      - POSTGRES_DB=prices
+    ports:
+      - '5432:5432'
