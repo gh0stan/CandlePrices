@@ -1,4 +1,4 @@
-# PricesService
+# CandlePrices
 
 Micro-service for aggregation, retrieval & caching of financial instruments prices.
 A simple use case is that a user requests the bitcoin price (BTC/USD) at a specific time-point, micro-service fetches the prices from multiple sources, aggregate them using some logic, then return it to the client. Aggregated price persisted in local storage.
