@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Prices.Application.Services;
+﻿using Prices.Application.Services;
 
 namespace Prices.Application.Factories
 {
@@ -15,27 +10,24 @@ namespace Prices.Application.Factories
     public class ApiCallerFactory : IApiCallerFactory
     {
         private readonly Dictionary<string, Func<IApiCaller>> _apiCallers;
-        private readonly IHttpClientFactory _httpClientFactory;
 
         public ApiCallerFactory(IHttpClientFactory httpClientFactory)
         {
-            _httpClientFactory = httpClientFactory;
-
             _apiCallers = new Dictionary<string, Func<IApiCaller>>
             {
-                { "bitfinex", () => new BitfinexCaller(_httpClientFactory) },
-                { "bitstamp", () => new BitstampCaller(_httpClientFactory) }
+                { "bitfinex", () => new BitfinexCaller(httpClientFactory) },
+                { "bitstamp", () => new BitstampCaller(httpClientFactory) }
             };
         }
 
         public IApiCaller GetApiCaller(string provider)
         {
-            if (!_apiCallers.ContainsKey(provider))
+            if (!_apiCallers.TryGetValue(provider, value: out var apiCaller))
             {
                 throw new ArgumentException(nameof(provider));
             }
 
-            var caller = _apiCallers[provider].Invoke();
+            var caller = apiCaller.Invoke();
             return caller;
         }
     }

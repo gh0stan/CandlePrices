@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
-using System;
 using Prices.Application.Services;
 using Prices.Application.Validators;
 using Prices.Contracts.Requests;
@@ -26,7 +25,7 @@ namespace Prices.Api.Controllers
             CancellationToken token)
         {
             var validator = new PriceRequestValidator();
-            var validationResult = await validator.ValidateAsync(request);
+            var validationResult = await validator.ValidateAsync(request, token);
 
             if (!validationResult.IsValid)
             {
@@ -36,11 +35,11 @@ namespace Prices.Api.Controllers
             var price = await _priceService.GetAggregatedPriceAsync(request.Instrument, request.TimePoint, token);
             
             return Ok(new PriceResponse
-            {
-                Instrument = request.Instrument,
-                TimePoint = request.TimePoint,
-                AggregatedPrice = price
-            });
+            (
+                Instrument: request.Instrument,
+                TimePoint: request.TimePoint,
+                AggregatedPrice: price
+            ));
         }
 
         [HttpGet(ApiEndpoints.Prices.Historical)]
@@ -49,7 +48,7 @@ namespace Prices.Api.Controllers
             CancellationToken token)
         {
             var validator = new HistoricalRequestValidator();
-            var validationResult = await validator.ValidateAsync(request);
+            var validationResult = await validator.ValidateAsync(request, token);
 
             if (!validationResult.IsValid)
             {
@@ -57,11 +56,10 @@ namespace Prices.Api.Controllers
             }
 
             var prices = await _priceService.GetPricesInRangeAsync(request.Instrument, request.startTime, request.endTime, token);
-            return Ok(new HistoricalPriceResponse
-            {
-                Instrument = request.Instrument,
-                Prices = prices
-            });
+            return Ok(new HistoricalPriceResponse(
+                Instrument: request.Instrument,
+                Prices: prices
+            ));
         }
     }
 }

@@ -19,7 +19,7 @@ namespace Prices.Api
                 x.AddPolicy("Cache", c =>
                     c.Cache()
                     .Expire(TimeSpan.FromMinutes(5))
-                    .SetVaryByQuery(new[] { "instrument", "timePoint", "startTime", "endTime" })
+                    .SetVaryByQuery(["instrument", "timePoint", "startTime", "endTime"])
                     .Tag("prices"));
             });
 

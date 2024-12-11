@@ -1,13 +1,4 @@
 ﻿using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
-using Prices.Contracts.Responses;
-using static System.Net.WebRequestMethods;
 
 namespace Prices.Application.Services
 {
@@ -33,7 +24,7 @@ namespace Prices.Application.Services
                 return value;
             }
 
-            throw new Exception(string.Format("Failed to recieve proper response. {0}", jsonResponse));
+            throw new Exception($"Failed to recieve proper response. {jsonResponse}");
         }
     }
 }

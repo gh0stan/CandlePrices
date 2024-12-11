@@ -1,13 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.Metrics;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using Prices.Contracts.Dto;
-using Prices.Contracts.Responses;
+﻿using Prices.Contracts.Dto;
 
 namespace Prices.Application.Services
 {

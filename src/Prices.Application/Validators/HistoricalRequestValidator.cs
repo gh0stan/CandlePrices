@@ -28,12 +28,7 @@ namespace Prices.Application.Validators
         {
             var dateTime = DateTimeOffset.FromUnixTimeSeconds(timePoint).UtcDateTime;
 
-            if (dateTime.Minute == 0 && dateTime.Second == 0)
-            {
-                return true;
-            }
-
-            return false;
+            return dateTime.Minute == 0 && dateTime.Second == 0;
         }
 
         private Task<bool> ValidateInstrument(string instrument, CancellationToken token = default)

@@ -2,16 +2,9 @@
 using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Prices.Api.Tests.TestDoubles;
-using Prices.Application.Database;
 using Prices.Application.Services;
 using Prices.Contracts.Requests;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Net.Http.Json;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Prices.Api.Tests
 {
@@ -27,8 +20,12 @@ namespace Prices.Api.Tests
                     .CreateClient();
 
             var response = await client.GetAsync(
-                CreateGetAggregatedPriceRequest(new AggregatedPriceRequest { Instrument = "btcusd", TimePoint = 1672531200 }), 
-                CancellationToken.None);
+                CreateGetAggregatedPriceRequest(new AggregatedPriceRequest
+                    {
+                        Instrument = "btcusd",
+                        TimePoint = 1672531200
+                    }),
+                    CancellationToken.None);
 
             response.Should().HaveStatusCode(HttpStatusCode.InternalServerError);
         }
@@ -41,7 +38,8 @@ namespace Prices.Api.Tests
                      .CreateClient();
 
             var response = await client.GetAsync(
-                CreateGetAggregatedPriceRequest(new AggregatedPriceRequest { Instrument = "incorrectInstrument", TimePoint = 1672531200 }),
+                CreateGetAggregatedPriceRequest(
+                    new AggregatedPriceRequest{Instrument = "incorrectInstrument", TimePoint = 1672531200}),
                 CancellationToken.None);
 
             response.Should().HaveStatusCode(HttpStatusCode.BadRequest);
@@ -49,7 +47,8 @@ namespace Prices.Api.Tests
 
         private static string CreateGetAggregatedPriceRequest(AggregatedPriceRequest request)
         {
-            var requestStr = ApiEndpoints.Prices.Aggregated.Replace("{Instrument}", request.Instrument) + "?TimePoint=" + request.TimePoint;
+            var requestStr = ApiEndpoints.Prices.Aggregated.Replace(
+                "{Instrument}", request.Instrument) + "?TimePoint=" + request.TimePoint;
             return requestStr;
         }
 

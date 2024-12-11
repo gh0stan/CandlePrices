@@ -9,14 +9,13 @@ namespace Prices.Application.Services
     {
         private readonly IPriceRepository _repository;
         private readonly IApiCallerFactory _apiCallerFactory;
-        private readonly List<string> _providersFromDatabase = new List<string>
-        {
+        private readonly List<string> _providersFromDatabase =
+        [
             "bitfinex",
             "bitstamp"
-        };
+        ];
 
-        public PriceService(IPriceRepository repository, IHttpClientFactory httpClientFactory, IApiCallerFactory apiCallerFactory, 
-            CancellationToken token = default)
+        public PriceService(IPriceRepository repository, IApiCallerFactory apiCallerFactory)
         {
             _repository = repository;
             _apiCallerFactory = apiCallerFactory;
@@ -24,21 +23,18 @@ namespace Prices.Application.Services
 
         public async Task<double> GetAggregatedPriceAsync(string instrument, long unixTimePoint, CancellationToken token = default)
         {
-            var tasks = new List<Task<double?>>();
-            foreach (var provider in _providersFromDatabase)
-            {
-                tasks.Add(Task.Run(async () =>
+            var tasks = _providersFromDatabase.Select(provider => Task.Run(async () =>
+                {
+                    var storedPrice = await _repository.GetPriceAsync(provider, instrument, unixTimePoint, token);
+                    if (storedPrice != null)
                     {
-                        var storedPrice = await _repository.GetPriceAsync(provider, instrument, unixTimePoint, token);
-                        if (storedPrice != null)
-                        {
-                            return storedPrice.Value;
-                        }
+                        return storedPrice.Value;
+                    }
 
-                        var value = await ImportClosePriceAsync(provider, instrument, unixTimePoint, token);
-                        return value;
-                    }));
-            }
+                    var value = await ImportClosePriceAsync(provider, instrument, unixTimePoint, token);
+                    return value;
+                }, token))
+                .ToList();
 
             await Task.WhenAll(tasks);
             
@@ -61,28 +57,22 @@ namespace Prices.Application.Services
 
         public async Task<List<PricePointDto>> GetPricesInRangeAsync(string instrument, long startTime, long endTime, CancellationToken token = default)
         {
-            List<long> timePoints = new List<long>();
-            long step = 3600;
+            var timePoints = new List<long>();
+            const long step = 3600;
 
-            for (long currentPoint = startTime; currentPoint <= endTime; currentPoint += step)
+            for (var currentPoint = startTime; currentPoint <= endTime; currentPoint += step)
             {
                 timePoints.Add(currentPoint);
             }
 
-            var tasks = new List<Task<PricePointDto>>();
-            foreach (var timePoint in timePoints)
-            {
-                tasks.Add(Task.Run(async () =>
+            var tasks = timePoints.Select(timePoint => Task.Run(async () =>
                 {
                     var aggregatedPrice = await GetAggregatedPriceAsync(instrument, timePoint, token);
 
-                    return new PricePointDto
-                    {
-                        TimePoint = timePoint,
-                        AggregatedPrice = aggregatedPrice
-                    };
-                }));
-            }
+                    return new PricePointDto { TimePoint = timePoint, AggregatedPrice = aggregatedPrice };
+                }, token))
+                .ToList();
+            
             await Task.WhenAll(tasks);
 
             var result = new List<PricePointDto>();
@@ -112,7 +102,7 @@ namespace Prices.Application.Services
                         Instrument = instrument,
                         TimePoint = unixTimePoint,
                         Close = value
-                    });
+                    }, token);
 
                 return value;
             }

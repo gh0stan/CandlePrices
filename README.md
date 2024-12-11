@@ -12,6 +12,9 @@ Database: postgres (docker-file provided).
 Cache: .NET Output Caching.
 Current available instruments: only BTC/USD. (enter lowercase, no symbols: btcusd).
 Time formats: unixtime, have hour-accuracy (no minutes/seconds allowed, hour = 3600, format unixtime: 1672531200).
+For example:
+Aggregated request ("btcusd", 1672531200)
+Historical request ("btcusd", 1672531200, 1672534800)
 
 Price sources:
 1. Bitstamp API endpoint: https://www.bitstamp.net/api/#tag/Market-info/operation/GetOHLCData
